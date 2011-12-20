@@ -47,7 +47,7 @@ class OperationExpression extends Expression
 
   public function render($parenthesis = false) {
     $multiply = $this->operator->isMultiply();
-    $parts = array_filter(array($this->left, $this->operator, $this->right->render($multiply)));
+    $parts = array_filter(array($this->left->render($multiply), $this->operator, $this->right->render($multiply)));
     $output = implode(' ', $parts);
     return $parenthesis ? "($output)" : $output;
   }
