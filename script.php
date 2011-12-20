@@ -1,13 +1,19 @@
 <?php
 abstract class Expression
 {
-  abstract public function render($parenthesis = false);
+  protected $value;
   abstract public function isValid();
 
+  public function __construct($value) {
+    $this->value = $value;
+  }
   public function __toString() {
     return $this->render();
   }
 
+  public function render($parenthesis = false) {
+    return (string) $this->value;
+  }
 }
 
 class OperationExpression extends Expression
@@ -25,13 +31,9 @@ class OperationExpression extends Expression
     return $this->operator->isValid() && $this->left->isValid() && $this->right->isValid();
   }
 
-  public function isValidOperand($operand) {
-    return $operand instanceof Expression;
-  }
-
   public function render($parenthesis = false) {
     $multiply = $this->operator->isMultiply();
-    $parts = array_filter(array($this->left->render($multiply), $this->operator, $this->right->render($multiply)));
+    $parts = array($this->left->render($multiply), $this->operator, $this->right->render($multiply));
     $output = implode(' ', $parts);
     return $parenthesis ? "($output)" : $output;
   }
@@ -39,31 +41,17 @@ class OperationExpression extends Expression
 
 class SingleExpression extends Expression
 {
-  public $char;
-  public function __construct($char) {
-    $this->char = $char;
-  }
-  public function render($parenthesis = false) {
-    return (string) $this->char;
-  }
   public function isValid() {
-    return is_numeric($this->char);
+    return is_numeric($this->value);
   }
 }
 class OperatorExpression extends Expression
 {
-  public $operator;
-  public function __construct($operator) {
-    $this->operator = $operator;
-  }
-  public function render($parenthesis = false) {
-    return (string) $this->operator;
-  }
   public function isMultiply() {
-    return in_array($this->operator, array('*', '/'));
+    return in_array($this->value, array('*', '/'));
   }
   public function isValid() {
-    return in_array($this->operator, array('+', '-', '*', '/'));
+    return in_array($this->value, array('+', '-', '*', '/'));
   }
 }
 
