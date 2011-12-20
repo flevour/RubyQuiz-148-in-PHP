@@ -69,19 +69,18 @@ class Converter
   }
 
   private function reduce($pieces) {
-    $allValidExpressions = false;
-    while (!$allValidExpressions) {
-      $i = 0;
-      while ($i <= count($pieces) - 3) {
-        $slice = array_slice($pieces, $i, 3);
+    $limit = (int) (count($pieces) / 2);
+    for ($i = 0; $i < $limit; $i++) {
+      $j = 0;
+      while ($j <= count($pieces) - 3) {
+        $slice = array_slice($pieces, $j, 3);
         $expression = new Expression($slice);
-        $allValidExpressions = !($allValidExpressions && $expression->isValid());
         if ($expression->isValid()) {
-          $before = array_slice($pieces, 0, $i);
-          $after  = array_slice($pieces, $i + 3);
+          $before = array_slice($pieces, 0, $j);
+          $after  = array_slice($pieces, $j + 3);
           $pieces = array_merge($before, array($expression), $after);
         }
-        $i++;
+        $j++;
       }
     }
     return $pieces;
