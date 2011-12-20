@@ -36,6 +36,7 @@ class ScriptTest extends PHPUnit_Framework_TestCase
       array('2 3 5 + *', '2 * (3 + 5)'),
       array('2 3 5 + *', '2 * (3 + 5)'),
       array('56 34 213.7 + * 678 -', '56 * (34 + 213.7) - 678'),
+      array('1 56 35 + 16 9 - / +', '1 + (56 + 35) / (16 - 9)'),
     );
   }
 }
