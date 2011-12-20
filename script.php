@@ -46,7 +46,7 @@ class OperationExpression extends Expression
   }
 
   public function render($parenthesis = false) {
-    $multiply = in_array($this->operator, array('*', '/'));
+    $multiply = $this->operator->isMultiply();
     $parts = array_filter(array($this->left, $this->operator, $this->right->render($multiply)));
     $output = implode(' ', $parts);
     return $parenthesis ? "($output)" : $output;
@@ -74,6 +74,9 @@ class OperatorExpression extends Expression
   }
   public function render($parenthesis = false) {
     return (string) $this->operator;
+  }
+  public function isMultiply() {
+    return in_array($this->operator, array('*', '/'));
   }
   public function isValid() {
     return in_array($this->operator, array('+', '-', '*', '/'));
