@@ -12,29 +12,13 @@ abstract class Expression
 
 class OperationExpression extends Expression
 {
-  const FORMAT_CLEAN = '%s %s %s';
-  const FORMAT_PARENTHESIS = '%s %s %s';
-
-  public $commands = array(
-    '+' => self::FORMAT_CLEAN,
-    '-' => self::FORMAT_CLEAN,
-    '*' => self::FORMAT_PARENTHESIS,
-    '/' => self::FORMAT_PARENTHESIS
-  );
-
   public $left, $operator, $right;
 
-  public function __construct($left, $right, $operator) {
+  public function __construct(Expression $left, Expression $right, Expression $operator) {
     $this->left = $left;
     $this->right = $right;
-    $this->operator = $operator;
-    if (!($this->left instanceof Expression)) {
-      $this->left = new SingleExpression($this->left);
-    }
-    if (!($this->right instanceof Expression)) {
-      $this->right = new SingleExpression($this->right);
-    }
-    $this->operator = new OperatorExpression($this->operator);
+    // force to OperatorExpression
+    $this->operator = new OperatorExpression($operator);
   }
 
   public function isValid() {
@@ -93,9 +77,9 @@ class Converter
   }
 
   private function map($pieces) {
-#    foreach ($pieces as $i => $char) {
-#      $pieces[$i] = new SingleExpression($char);
-#    }
+    foreach ($pieces as $i => $char) {
+      $pieces[$i] = new SingleExpression($char);
+    }
     return $pieces;
   }
   private function reduce($pieces) {
