@@ -32,10 +32,10 @@ class ScriptTest extends PHPUnit_Framework_TestCase
   public function dataProviderConversion() {
     return array(
       array('2 3 +', '2 + 3'),
-#      array('2 3 5 + +', '2 + 3 + 5'),
-#      array('2 3 5 + *', '2 * (3 + 5)'),
-#      array('2 3 5 + *', '2 * (3 + 5)'),
-#      array('56 34 213.7 + * 678 -', '56 * (34 + 213.7) - 678'),
+      array('2 3 5 + +', '2 + 3 + 5'),
+      array('2 3 5 + *', '2 * (3 + 5)'),
+      array('2 3 5 + *', '2 * (3 + 5)'),
+      array('56 34 213.7 + * 678 -', '56 * (34 + 213.7) - 678'),
     );
   }
 }

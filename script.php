@@ -3,7 +3,7 @@
 class Expression
 {
   const FORMAT_CLEAN = '%s %s %s';
-  const FORMAT_PARENTHESIS = '(%s %s %s)';
+  const FORMAT_PARENTHESIS = '%s %s %s';
 
   public $commands = array(
     '+' => self::FORMAT_CLEAN,
@@ -12,26 +12,79 @@ class Expression
     '/' => self::FORMAT_PARENTHESIS
   );
 
-  public $left, $operand, $right;
+  public $left, $operator, $right;
 
   public function __construct($pieces) {
-    list($this->left, $this->right, $this->operand) = $pieces;
+    list($this->left, $this->right, $this->operator) = $pieces;
+    if (is_numeric($this->left)) {
+      $this->left = new IntExpression($this->left);
+    }
+    if (is_numeric($this->right)) {
+      $this->right = new IntExpression($this->right);
+    }
   }
 
   public function isValid() {
-    return in_array($this->operand, array_keys($this->commands));
+    return in_array($this->operator, array_keys($this->commands)) &&
+      $this->isValidOperand($this->left) &&
+      $this->isValidOperand($this->right);
+  }
+
+  public function isValidOperand($operand) {
+    return $operand instanceof IntExpression || $operand instanceof Expression;
+  }
+
+  public function render($parenthesis = false) {
+    $multiply = in_array($this->operator, array('*', '/'));
+    $parts = array_filter(array($this->left, $this->operator, $this->right->render($multiply)));
+    $output = implode(' ', $parts);
+    return $parenthesis ? "($output)" : $output;
   }
 
   public function __toString() {
-    return sprintf($this->commands[$this->operand], $this->left, $this->operand, $this->right);
+    return $this->render();
   }
 }
+
+class IntExpression
+{
+  public $int;
+  public function __construct($int) {
+    $this->int = $int;
+  }
+  public function render() {
+    return $this->int;
+  }
+  public function __toString() {
+    return $this->render();
+  }
+}
+
 class Converter
 {
   public function convert($string) {
     $pieces = $this->split($string);
-    $expression = new Expression($pieces);
-    return $expression;
+    $expression = $this->reduce($pieces);
+    return $this->render($expression);
+  }
+
+  private function reduce($pieces) {
+    $allValidExpressions = false;
+    while (!$allValidExpressions) {
+      $i = 0;
+      while ($i <= count($pieces) - 3) {
+        $slice = array_slice($pieces, $i, 3);
+        $expression = new Expression($slice);
+        $allValidExpressions = !($allValidExpressions && $expression->isValid());
+        if ($expression->isValid()) {
+          $before = array_slice($pieces, 0, $i);
+          $after  = array_slice($pieces, $i + 3);
+          $pieces = array_merge($before, array($expression), $after);
+        }
+        $i++;
+      }
+    }
+    return $pieces;
   }
 
   public function render(array $output) {
