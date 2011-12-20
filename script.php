@@ -1,4 +1,8 @@
 <?php
+/**
+ * Very verbose and creative way of solving the rubyquiz at http://www.rubyquiz.com/quiz148.html
+ * I used a much complicated approach suggested by my TDD session, the correct solutions uses a stack.
+ */
 abstract class Expression
 {
   protected $value;
@@ -71,9 +75,12 @@ class Converter
     return $pieces;
   }
   private function reduce($pieces) {
+    // Any postfix expression is made of 2n+1 symbols. Each time you transform a 3-symbols sequence in 1 expression, you reduce the number of symbols of 2.
     $limit = (int) (count($pieces) / 2);
+    // Incrementally transforms an array of symbols to an array of expressions
     for ($i = 0; $i < $limit; $i++) {
       $j = 0;
+      // Look for valid 3-symbols groups and replace them with an Expression
       while ($j <= count($pieces) - 3) {
         $slice = array_slice($pieces, $j, 3);
         $expression = new OperationExpression($slice[0], $slice[1], $slice[2]);
