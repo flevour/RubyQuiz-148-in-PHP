@@ -23,18 +23,21 @@ class OperationExpression extends Expression
 
   public $left, $operator, $right;
 
-  public function __construct($pieces) {
-    list($this->left, $this->right, $this->operator) = $pieces;
+  public function __construct($left, $right, $operator) {
+    $this->left = $left;
+    $this->right = $right;
+    $this->operator = $operator;
     if (is_numeric($this->left)) {
       $this->left = new SingleExpression($this->left);
     }
     if (is_numeric($this->right)) {
       $this->right = new SingleExpression($this->right);
     }
+    $this->operator = new SingleExpression($this->operator);
   }
 
   public function isValid() {
-    return in_array($this->operator, array_keys($this->commands)) &&
+    return in_array((string) $this->operator, array_keys($this->commands)) &&
       $this->isValidOperand($this->left) &&
       $this->isValidOperand($this->right);
   }
@@ -58,7 +61,7 @@ class SingleExpression extends Expression
     $this->char = $char;
   }
   public function render($parenthesis = false) {
-    return $this->char;
+    return (string) $this->char;
   }
 }
 
@@ -83,7 +86,7 @@ class Converter
       $j = 0;
       while ($j <= count($pieces) - 3) {
         $slice = array_slice($pieces, $j, 3);
-        $expression = new OperationExpression($slice);
+        $expression = new OperationExpression($slice[0], $slice[1], $slice[2]);
         if ($expression->isValid()) {
           $before = array_slice($pieces, 0, $j);
           $after  = array_slice($pieces, $j + 3);
