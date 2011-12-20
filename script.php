@@ -1,6 +1,15 @@
 <?php
+abstract class Expression
+{
+  abstract public function render($parenthesis = false);
 
-class Expression
+  public function __toString() {
+    return $this->render();
+  }
+
+}
+
+class OperationExpression extends Expression
 {
   const FORMAT_CLEAN = '%s %s %s';
   const FORMAT_PARENTHESIS = '%s %s %s';
@@ -17,10 +26,10 @@ class Expression
   public function __construct($pieces) {
     list($this->left, $this->right, $this->operator) = $pieces;
     if (is_numeric($this->left)) {
-      $this->left = new IntExpression($this->left);
+      $this->left = new SingleExpression($this->left);
     }
     if (is_numeric($this->right)) {
-      $this->right = new IntExpression($this->right);
+      $this->right = new SingleExpression($this->right);
     }
   }
 
@@ -31,7 +40,7 @@ class Expression
   }
 
   public function isValidOperand($operand) {
-    return $operand instanceof IntExpression || $operand instanceof Expression;
+    return $operand instanceof Expression;
   }
 
   public function render($parenthesis = false) {
@@ -40,23 +49,16 @@ class Expression
     $output = implode(' ', $parts);
     return $parenthesis ? "($output)" : $output;
   }
-
-  public function __toString() {
-    return $this->render();
-  }
 }
 
-class IntExpression
+class SingleExpression extends Expression
 {
-  public $int;
-  public function __construct($int) {
-    $this->int = $int;
+  public $char;
+  public function __construct($char) {
+    $this->char = $char;
   }
-  public function render() {
-    return $this->int;
-  }
-  public function __toString() {
-    return $this->render();
+  public function render($parenthesis = false) {
+    return $this->char;
   }
 }
 
@@ -64,17 +66,24 @@ class Converter
 {
   public function convert($string) {
     $pieces = $this->split($string);
+    $pieces = $this->map($pieces);
     $expression = $this->reduce($pieces);
     return $this->render($expression);
   }
 
+  private function map($pieces) {
+#    foreach ($pieces as $i => $char) {
+#      $pieces[$i] = new SingleExpression($char);
+#    }
+    return $pieces;
+  }
   private function reduce($pieces) {
     $limit = (int) (count($pieces) / 2);
     for ($i = 0; $i < $limit; $i++) {
       $j = 0;
       while ($j <= count($pieces) - 3) {
         $slice = array_slice($pieces, $j, 3);
-        $expression = new Expression($slice);
+        $expression = new OperationExpression($slice);
         if ($expression->isValid()) {
           $before = array_slice($pieces, 0, $j);
           $after  = array_slice($pieces, $j + 3);

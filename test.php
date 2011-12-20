@@ -18,7 +18,7 @@ class ScriptTest extends PHPUnit_Framework_TestCase
    * @dataProvider dataProviderExpression
    */
   public function testExpression($values,$expectation) {
-    $expression = new Expression($values);
+    $expression = new OperationExpression($values);
     $this->assertEquals($expectation, $expression->isValid());
   }
 
