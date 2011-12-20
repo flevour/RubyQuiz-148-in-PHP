@@ -2,6 +2,7 @@
 abstract class Expression
 {
   abstract public function render($parenthesis = false);
+  abstract public function isValid();
 
   public function __toString() {
     return $this->render();
@@ -27,19 +28,17 @@ class OperationExpression extends Expression
     $this->left = $left;
     $this->right = $right;
     $this->operator = $operator;
-    if (is_numeric($this->left)) {
+    if (!($this->left instanceof Expression)) {
       $this->left = new SingleExpression($this->left);
     }
-    if (is_numeric($this->right)) {
+    if (!($this->right instanceof Expression)) {
       $this->right = new SingleExpression($this->right);
     }
-    $this->operator = new SingleExpression($this->operator);
+    $this->operator = new OperatorExpression($this->operator);
   }
 
   public function isValid() {
-    return in_array((string) $this->operator, array_keys($this->commands)) &&
-      $this->isValidOperand($this->left) &&
-      $this->isValidOperand($this->right);
+    return $this->operator->isValid() && $this->left->isValid() && $this->right->isValid();
   }
 
   public function isValidOperand($operand) {
@@ -62,6 +61,22 @@ class SingleExpression extends Expression
   }
   public function render($parenthesis = false) {
     return (string) $this->char;
+  }
+  public function isValid() {
+    return is_numeric($this->char);
+  }
+}
+class OperatorExpression extends Expression
+{
+  public $operator;
+  public function __construct($operator) {
+    $this->operator = $operator;
+  }
+  public function render($parenthesis = false) {
+    return (string) $this->operator;
+  }
+  public function isValid() {
+    return in_array($this->operator, array('+', '-', '*', '/'));
   }
 }
 
